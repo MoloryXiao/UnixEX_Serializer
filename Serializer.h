@@ -1,11 +1,13 @@
 #include <iostream>
-#include "SerializeTestA.h"
-#include "SerializeTestB.h"
-#include "SerializeTestBase.h"
 #include <vector>
+#include <fcntl.h>
+#include <unistd.h>
+#include "SerializeTestBase.h"
 using namespace std;
 
 class Serializer{
+private:
+	vector<SerializeTestBase*> vec_register;
 
 public:
 	bool Serialize(const char* pFilePath,vector<SerializeTestBase*>& v)
@@ -38,35 +40,34 @@ public:
 		int fd = open(pFilePath, O_RDWR);
 		if(-1 == fd)
 			return false;
-
+		
 		// Deserialize every element in vector.
 		while(true)
 		{
 			// Get the type of element.
 			int nType;
-			int r = ::read(fd, &nType, 4);
+			int r = ::read(fd, &nType, sizeof(nType));
 			if((-1 == r) || (0 == r))
 				break;
 
-			if(nType == 1)
+			for(int i=0;i<vec_register.size();i++)
 			{
-				SerializeTestA* sta = new SerializeTestA();
-				if(sta->Deserialize(fd) == true)
-					v.push_back(sta);
-				else
-					break;
-			}else if(nType == 2)
-			{
-				SerializeTestB* stb = new SerializeTestB();
-				if(stb->Deserialize(fd) == true)
-					v.push_back(stb);
-				else
-					break;
+				if(vec_register[i]->GetType() == nType)
+				{
+					SerializeTestBase* p = vec_register[i]->Deserialize(fd);
+					if(p != NULL)
+						v.push_back(p);
+				}
 			}
 			
 		}
 
 		close(fd);
 		return true;
+	}
+
+	void Register(SerializeTestBase* p)
+	{
+		vec_register.push_back(p);
 	}
 };

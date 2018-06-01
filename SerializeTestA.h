@@ -114,18 +114,20 @@ public:
 		return true;
 	}
 
-	bool Deserialize(int fd)
+	SerializeTestBase* Deserialize(int fd)
 	{
 		if(-1 == fd)
-			return false;
+			return NULL;
 
-		int r = read(fd, this, sizeof(*this));
+		SerializeTestA *sta = new SerializeTestA();
+		int r = read(fd, sta, sizeof(*this));
+
 		if((0 == r) || (-1 == r))
 		{
-			return false;
+			return NULL;
 		}
 
-		return true;
+		return sta;
 	}
 
 	void print()

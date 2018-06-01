@@ -1,10 +1,12 @@
 #include <iostream>
 #include "SerializeTestBase.h"
+#include "SerializeTestA.h"
+#include "SerializeTestB.h"
 #include "Serializer.h"
 using namespace std;
 
 int main(int argc, char** argv) {
-	// level 3: n objects of 2 classes are serialized to data file.
+	// level 4: n objects of m classes are serialized to data file.
 	char filePath[] = "file.dat";
 	{
 		vector<SerializeTestBase*> v;
@@ -29,6 +31,10 @@ int main(int argc, char** argv) {
 	{
 		vector<SerializeTestBase*> v;
 		Serializer ser;
+		SerializeTestA sta;
+		SerializeTestB stb;
+		ser.Register(&sta);
+		ser.Register(&stb);
 		ser.Deserialize(filePath,v);
 		cout<<"After:"<<endl;
 		for(int i=0;i<v.size();i++)
