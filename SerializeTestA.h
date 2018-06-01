@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <fcntl.h>
 #include <unistd.h>
@@ -84,6 +86,31 @@ public:
 		// close the file description
 		if(close(fd) == -1)
 			return false;
+
+		return true;
+	}
+
+	bool Serialize(int fd)
+	{
+		if(-1 == fd)
+			return false;
+
+		if(write(fd, this, sizeof(*this)) == -1)
+			return false;
+
+		return true;
+	}
+
+	bool Deserialize(int fd)
+	{
+		if(-1 == fd)
+			return false;
+
+		int r = read(fd, this, sizeof(*this));
+		if((0 == r) || (-1 == r))
+		{
+			return false;
+		}
 
 		return true;
 	}
